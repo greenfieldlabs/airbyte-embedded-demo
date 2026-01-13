@@ -28,7 +28,7 @@ if (!process.env.REDIS_URL || process.env.REDIS_URL.trim() === '') {
             return users.find(user => user.email === email);
         },
 
-        addUser: async (email) => {
+        addUser: async (email, workspaceName) => {
             const users = await db.read();
 
             // Check if user already exists
@@ -37,11 +37,23 @@ if (!process.env.REDIS_URL || process.env.REDIS_URL.trim() === '') {
             }
 
             const newUser = {
-                email
+                email,
+                workspaceName
             };
             users.push(newUser);
             await db.write(users);
             return newUser;
+        },
+
+        updateUser: async (email, workspaceName) => {
+            const users = await db.read();
+            const userIndex = users.findIndex(user => user.email === email);
+            if (userIndex === -1) {
+                throw new Error('User not found');
+            }
+            users[userIndex].workspaceName = workspaceName;
+            await db.write(users);
+            return users[userIndex];
         },
 
     };
@@ -49,6 +61,7 @@ if (!process.env.REDIS_URL || process.env.REDIS_URL.trim() === '') {
     module.exports = {
         findUser: db.findUser,
         addUser: db.addUser,
+        updateUser: db.updateUser,
     };
 } else {
     const { createClient } = require('redis');
@@ -74,7 +87,7 @@ if (!process.env.REDIS_URL || process.env.REDIS_URL.trim() === '') {
             return userData ? JSON.parse(userData) : null;
         },
 
-        addUser: async (email) => {
+        addUser: async (email, workspaceName) => {
             await ensureConnection();
             const exists = await client.exists(`user:${email}`);
             if (exists) {
@@ -83,9 +96,22 @@ if (!process.env.REDIS_URL || process.env.REDIS_URL.trim() === '') {
 
             const user = {
                 email,
+                workspaceName,
                 created_at: new Date().toISOString()
             };
 
+            await client.set(`user:${email}`, JSON.stringify(user));
+            return user;
+        },
+
+        updateUser: async (email, workspaceName) => {
+            await ensureConnection();
+            const userData = await client.get(`user:${email}`);
+            if (!userData) {
+                throw new Error('User not found');
+            }
+            const user = JSON.parse(userData);
+            user.workspaceName = workspaceName;
             await client.set(`user:${email}`, JSON.stringify(user));
             return user;
         },
@@ -94,5 +120,6 @@ if (!process.env.REDIS_URL || process.env.REDIS_URL.trim() === '') {
     module.exports = {
         findUser: db.findUser,
         addUser: db.addUser,
+        updateUser: db.updateUser,
     };
 }

@@ -33,10 +33,11 @@ async function getAccessToken() {
 /**
  * Generates a widget token for the Airbyte API
  * @param {string} externalUserId - The ID of the external user
+ * @param {string} workspaceName - The name of the workspace
  * @param {string} allowedOrigin - The allowed origin (optional, defaults to env variable)
  * @returns {Promise<string>} The widget token
  */
-async function generateWidgetToken(externalUserId, allowedOrigin = null) {
+async function generateWidgetToken(externalUserId, workspaceName, allowedOrigin = null) {
     try {
         const accessToken = await getAccessToken();
 
@@ -47,7 +48,7 @@ async function generateWidgetToken(externalUserId, allowedOrigin = null) {
             origin = `https://${process.env.VERCEL_BRANCH_URL}`;
         }
 
-        console.log(`Generating widget token for user ${externalUserId} with origin ${origin}`);
+        console.log(`Generating widget token for user ${externalUserId} with workspace ${workspaceName} and origin ${origin}`);
 
         const response = await fetch('https://api.airbyte.ai/api/v1/embedded/widget-token', {
             method: 'POST',
@@ -58,7 +59,7 @@ async function generateWidgetToken(externalUserId, allowedOrigin = null) {
             },
             body: JSON.stringify({
                 external_user_id: externalUserId,
-                workspace_name: externalUserId,
+                workspace_name: workspaceName,
                 organization_id: process.env.SONAR_AIRBYTE_ORGANIZATION_ID,
                 allowed_origin: origin,
             })

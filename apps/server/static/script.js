@@ -146,12 +146,18 @@ async function handleUserAction() {
         showToast('Please authenticate first', true);
         return;
     }
-    
+
+    const workspaceName = document.getElementById('workspaceName').value;
     const email = document.getElementById('email').value;
     const spinner = document.getElementById('spinner');
     const submitButton = document.querySelector('#loginForm .action-btn');
     const toastDiv = document.getElementById('toast');
-    
+
+    if (!workspaceName) {
+        showToast('Please enter a workspace name', true);
+        return;
+    }
+
     if (!email) {
         showToast('Please enter an email address', true);
         return;
@@ -169,7 +175,7 @@ async function handleUserAction() {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ email }),
+            body: JSON.stringify({ email, workspaceName }),
         });
 
         const data = await response.json();

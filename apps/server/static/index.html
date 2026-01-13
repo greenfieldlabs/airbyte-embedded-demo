@@ -23,6 +23,7 @@
         
         <form id="loginForm" onsubmit="event.preventDefault(); handleUserAction();" style="display: none;">
             <div class="form-group">
+                <input type="text" id="workspaceName" placeholder="Enter workspace name" required>
                 <input type="email" id="email" placeholder="Enter email address" required>
                 <button type="submit" class="action-btn">Login or Create</button>
                 <div id="spinner" class="spinner"></div>

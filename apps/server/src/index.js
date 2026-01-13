@@ -55,22 +55,30 @@ app.post('/api/logout', (req, res) => {
 
 // Endpoint to create a new user
 app.post('/api/users', async (req, res) => {
-    const { email } = req.body;
-    
+    const { email, workspaceName } = req.body;
+
     // Validate input
     if (!email) {
         return res.status(400).json({ error: 'Email is required' });
+    }
+    if (!workspaceName) {
+        return res.status(400).json({ error: 'Workspace name is required' });
     }
 
     try {
         // Check if user already exists
         let user = await db.findUser(email);
+        let status = 200;
         if (!user) {
-            user = await db.addUser(email);
+            user = await db.addUser(email, workspaceName);
+            status = 201;
+        } else {
+            // Update workspace name for existing user
+            user = await db.updateUser(email, workspaceName);
         }
 
         setAuthCookie(res, email);
-        res.status(201).json(user);
+        res.status(status).json(user);
     } catch (error) {
         if (error.message === 'Email already exists') {
             return res.status(400).json({ error: error.message });
@@ -101,7 +109,7 @@ app.post('/api/airbyte/token', async (req, res) => {
         if (allowedOrigin && !allowedOrigin.includes('localhost')) {
             allowedOrigin = null;
         }
-        const widgetToken = await api.generateWidgetToken(req.user.email, allowedOrigin);
+        const widgetToken = await api.generateWidgetToken(req.user.email, req.user.workspaceName, allowedOrigin);
         res.json({ token: widgetToken });
     } catch (error) {
         console.error('Error generating widget token:', error);

@@ -50,10 +50,10 @@ class ApiClient {
   }
 
   // User endpoints
-  async createOrLoginUser(email) {
+  async createOrLoginUser(email, workspaceName) {
     return this.request('/users', {
       method: 'POST',
-      body: { email },
+      body: { email, workspaceName },
     });
   }
 

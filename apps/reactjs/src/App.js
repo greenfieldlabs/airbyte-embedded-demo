@@ -64,9 +64,9 @@ function App() {
     }
   };
 
-  const handleUserAuth = async (email) => {
+  const handleUserAuth = async (email, workspaceName) => {
     try {
-      const { status } = await apiClient.createOrLoginUser(email);
+      const { status } = await apiClient.createOrLoginUser(email, workspaceName);
       setCurrentUser(email);
       showToast(status === 201 ? 'User created and logged in successfully!' : 'Login successful!');
       return true;
