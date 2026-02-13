@@ -89,6 +89,31 @@ SONAR_AIRBYTE_CLIENT_SECRET=your_client_secret
 - `npm run clean` - Clean build artifacts and node_modules
 - `npm run test` - Run tests across all apps
 
+### Source Templates
+
+Manage Airbyte source templates using the CLI script:
+
+```bash
+# List all templates
+./scripts/source-templates.sh list
+
+# Get a specific template
+./scripts/source-templates.sh get <id>
+
+# Create a new template
+# Tip: Get the configuration JSON from cloud.airbyte.com:
+#   Sources → "+ New source" → Select source → "Copy JSON" button
+./scripts/source-templates.sh create '{"name": "Connector Name", "workspaceId": "uuid", "definitionId": "uuid", "configuration": {}}'
+
+# Update a template
+./scripts/source-templates.sh update <id> '<json>'
+
+# Delete a template
+./scripts/source-templates.sh delete <id>
+```
+
+> **Note**: Requires `SONAR_AIRBYTE_CLIENT_ID` and `SONAR_AIRBYTE_CLIENT_SECRET` in `apps/server/.env`. Get these from [app.airbyte.com](https://app.airbyte.com) → Authentication Module in the side panel.
+
 ## 🎨 Customization Examples
 
 ### Change Theme Colors
